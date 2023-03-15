@@ -1,0 +1,110 @@
+#!/usr/bin/python3
+import sys
+import os
+
+input_file=sys.argv[2]
+jar_file=sys.argv[1]
+input_dir=sys.argv[3]
+output_dir=sys.argv[4]
+mapper_reducer=sys.argv[5]
+# print(input_file)
+file1=open(input_file,"r")
+file2=open("input_new.txt","w")
+
+lines=file1.readlines()
+i=0
+A_r=0
+B_r=0
+A_c=0
+B_c=0
+A_r=[int(x) for x in lines[0].strip().split()][0]
+A_c=[int(x) for x in lines[0].strip().split()][1]
+B_r=[int(x) for x in lines[A_r+1].strip().split()][0]
+B_c=[int(x) for x in lines[A_r+1].strip().split()][1]
+for line in lines:
+    arr=[int(x) for x in line.strip().split()]
+    # print(arr)
+    if i==0:
+        A_r=arr[0]
+        A_c=arr[1]
+    elif i==A_r+1:
+        B_r=arr[0]
+        B_c=arr[1]
+    elif i<=A_r:
+        j=0
+        for x in arr:
+            list=[]
+            list.append(0)
+            list.append(i-1)
+            list.append(j)
+            list.append(x)
+            list.append(B_c)
+            string_print=' '.join(map(str,list))
+            file2.write(string_print)
+            file2.write("\n")
+            j=j+1
+    else:
+        j=0
+        for x in arr:
+            list=[]
+            list.append(1)
+            list.append(i-A_r-2)
+            list.append(j)
+            list.append(x)
+            list.append(A_r)
+            string_print=' '.join(map(str,list))
+            file2.write(string_print)
+            file2.write("\n")
+            j=j+1
+    i+=1
+
+
+mapper_file=mapper_reducer+"mapper/mapper.py"
+reducer_file=mapper_reducer+"reducer/reducer.py"
+file2.close()
+command="hdfs dfs -rm -r "
+command+=input_dir
+os.system(command)
+command="hdfs dfs -mkdir "
+command+=input_dir
+os.system(command)
+command="hdfs dfs -put ./input_new.txt "
+command+=input_dir
+os.system(command)
+command="hadoop jar " 
+command+=jar_file
+command+=' '
+# -input $2 \
+# -output $3 \
+# -mapper "python3 mapper.py" \
+# -reducer "python3 reducer.py" \
+# -file $4 \
+# -file $5 "
+command+="-input "
+command+=input_dir
+command+=' '
+command+="-output "
+command+=output_dir
+command+=' '
+command+="-mapper "
+str2="\"python3 mapper.py\""
+command+=str2
+command+=' '
+command+="-reducer "
+str2="\"python3 reducer.py\""
+command+=str2
+command+=' '
+command+='-file '
+command+=mapper_file
+command+=' '
+command+='-file '
+command+=reducer_file
+
+
+
+# print(command)
+os.system(command)
+
+
+
+    

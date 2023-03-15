@@ -1,0 +1,50 @@
+#!/usr/bin/python3
+import os
+import sys
+input_file=sys.argv[2]
+jar_file=sys.argv[1]
+input_dir=sys.argv[3]
+output_dir=sys.argv[4]
+mapper_reducer=sys.argv[5]
+
+mapper_file=mapper_reducer+"mapper/mapper.py"
+reducer_file=mapper_reducer+"reducer/reducer.py"
+
+command="hdfs dfs -rm -r "
+command+=input_dir
+os.system(command)
+command="hdfs dfs -mkdir "
+command+=input_dir
+os.system(command)
+command="hdfs dfs -put "
+command+=input_file
+command+=' '
+command+=input_dir
+os.system(command)
+command="hadoop jar " 
+command+=jar_file
+command+=' '
+
+command+="-input "
+command+=input_dir
+command+=' '
+command+="-output "
+command+=output_dir
+command+=' '
+command+="-mapper "
+str2="\"python3 mapper.py\""
+command+=str2
+command+=' '
+command+="-reducer "
+str2="\"python3 reducer.py\""
+command+=str2
+command+=' '
+command+='-file '
+command+=mapper_file
+command+=' '
+command+='-file '
+command+=reducer_file
+
+
+os.system(command)
+ 
